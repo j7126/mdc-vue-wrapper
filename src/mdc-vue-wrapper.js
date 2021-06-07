@@ -4,6 +4,8 @@
  * (c) 2020 - 2021 Jefferey Neuffer github.com/j7126
  * Released under the GNU Affero General Public License.
  */
+
+// Top app bar
 Vue.component('mdc-top-app-bar', {
     data: function () {
         return {}
@@ -32,6 +34,21 @@ Vue.component('mdc-top-app-bar', {
         </section>
     </div>
 </header>
+`
+});
+
+// Buttons
+Vue.component('mdc-fab', {
+    props: ['icon', 'label'],
+    mounted: function () {
+        MDCRipple = window.mdc.ripple.MDCRipple;
+        const ripple = new MDCRipple(this.$el);
+    },
+    template: `
+<button class="mdc-fab" :aria-label="label != null ? label : icon" @click="$emit('click')">
+    <div class="mdc-fab__ripple"></div>
+    <span class="mdc-fab__icon material-icons">{{icon}}</span>
+</button>
 `
 });
 
@@ -70,6 +87,7 @@ Vue.component('mdc-button', {
 `
 });
 
+// Inputs
 Vue.component('mdc-switch', {
     data: function () {
         return {
@@ -95,91 +113,58 @@ Vue.component('mdc-switch', {
 `
 });
 
+Vue.component('mdc-checkbox', {
+    props: ['value', 'label', 'disabled'],
+    mounted: function () {
+        MDCCheckbox = window.mdc.checkbox.MDCCheckbox;
+        MDCFormField = window.mdc.formField.MDCFormField;
+        const checkbox = new MDCCheckbox(this.$el.childNodes[0]);
+        const formField = new MDCFormField(this.$el);
+        formField.input = checkbox;
+    },
+    template: `
+<div class="mdc-form-field">
+    <div class="mdc-checkbox">
+        <input :checked="value" type="checkbox" class="mdc-checkbox__native-control" :id="'mdc-checkbox_' + _uid" :disabled="disabled" @change="$emit('input', $event.target.checked); $emit('change', $event.target.checked)" />
+        <div class="mdc-checkbox__background">
+            <svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24">
+                <path class="mdc-checkbox__checkmark-path" fill="none" d="M1.73,12.91 8.1,19.28 22.79,4.59" />
+            </svg>
+            <div class="mdc-checkbox__mixedmark"></div>
+        </div>
+        <div class="mdc-checkbox__ripple"></div>
+    </div>
+    <label :for="'mdc-checkbox_' + _uid" v-html="label"></label>
+</div>
+`
+});
+
 Vue.component('mdc-text-field', {
     data: function () {
         return {}
     },
-    props: ['value', 'label', 'disabled', 'required', 'maxlength', 'type', 'min', 'max'],
+    props: ['value', 'label', 'disabled', 'required', 'maxlength', 'type', 'min', 'max', 'outlined'],
     mounted: function () {
         MDCTextField = window.mdc.textField.MDCTextField;
         const switchControl = new MDCTextField(this.$el);
     },
     template: `
-<label :id="'mdc-text-field-l_' + _uid" class="mdc-text-field mdc-text-field--filled">
-    <span class="mdc-text-field__ripple"></span>
-    <span class="mdc-floating-label" :id="'mdc-text-field_' + _uid">{{label}}</span>
-    <input class="mdc-text-field__input" :type="type != null ? type : 'text'" :aria-labelledby="'mdc-text-field_' + _uid" @input="$emit('input', $event.target.value)" :required="required" :disabled="disabled" :maxlength="maxlength" :value="value" :min="min" :max="max">
-    <span class="mdc-line-ripple"></span>
+<label :id="'mdc-text-field-l_' + _uid" class="mdc-text-field"
+    :class="{'mdc-text-field--filled': !outlined, 'mdc-text-field--outlined': outlined}">
+    <span v-if="!outlined" class="mdc-text-field__ripple"></span>
+    <span v-if="outlined" class="mdc-notched-outline">
+        <span class="mdc-notched-outline__leading"></span>
+        <span class="mdc-notched-outline__notch">
+            <span class="mdc-floating-label" :id="'mdc-text-field_' + _uid">{{label}}</span>
+        </span>
+        <span class="mdc-notched-outline__trailing"></span>
+    </span>
+    <span v-if="!outlined" class="mdc-floating-label" :id="'mdc-text-field_' + _uid">{{label}}</span>
+    <input class="mdc-text-field__input" :type="type != null ? type : 'text'"
+        :aria-labelledby="'mdc-text-field_' + _uid" @input="$emit('input', $event.target.value)" :required="required"
+        :disabled="disabled" :maxlength="maxlength" :value="value" :min="min" :max="max">
+    <span v-if="!outlined" class="mdc-line-ripple"></span>
 </label>
-`
-});
-
-Vue.component('mdc-dialog', {
-    data: function () {
-        return {
-            dialog: null
-        }
-    },
-    props: ['value', 'open', 'title', 'escapeKeyAction', 'scrimClickAction'],
-    watch: {
-        value: function (val) {
-            if (val)
-                this.dialog.open();
-        },
-        open: function (val) {
-            if (val)
-                this.dialog.open();
-        },
-        escapeKeyAction: function (val) {
-            this.dialog.escapeKeyAction = val;
-        },
-        scrimClickAction: function (val) {
-            this.dialog.scrimClickAction = val;
-        }
-    },
-    mounted: function () {
-        var self = this;
-        this.dialog = new window.mdc.dialog.MDCDialog(this.$el);
-        this.dialog.escapeKeyAction = this.escapeKeyAction;
-        this.dialog.scrimClickAction = this.scrimClickAction;
-        this.dialog.listen('MDCDialog:closed', e => {
-            this.$emit('input', false);
-            this.$emit('closed', e.detail);
-        });
-        this.dialog.listen('MDCDialog:opened', e => {
-            const switchElems = document.querySelectorAll('#mdc-dialog_' + this._uid + ' .mdc-switch');
-            for (i = 0; i < switchElems.length; ++i) {
-                if (switchElems[i] != null) { mdc.switchControl.MDCSwitch.attachTo(switchElems[i]).layout; }
-            }
-        });
-        for (var i = 0; i < this.$slots.actions.length; i++) {
-            try {
-                if (this.$slots.actions[i].componentOptions.tag == 'mdc-button') {
-                    this.$slots.actions[i].componentInstance.inDialog = true;
-                }
-            }
-            catch { }
-        }
-    },
-    template: `
-<div class="mdc-dialog" :id="'mdc-dialog_' + _uid">
-    <div class="mdc-dialog__container">
-        <div class="mdc-dialog__surface" role="alertdialog" aria-modal="true" :aria-labelledby="'dialog' + _uid + '-title'"
-            aria-describedby="'dialog' + _uid + '-content'">
-            <slot name="header" />
-            <span class="mdc-typography--headline5 mdc-dialog__title" v-if="title != null" :id="'dialog' + _uid + '-title'">
-                {{title}}
-            </span>
-            <div class="mdc-dialog__content" :id="'dialog' + _uid + '-content'">
-                <slot></slot>
-            </div>
-            <div class="mdc-dialog__actions">
-                <slot name="actions"></slot>
-            </div>
-        </div>
-    </div>
-    <div class="mdc-dialog__scrim"></div>
-</div>
 `
 });
 
@@ -251,5 +236,128 @@ Vue.component('mdc-select-option', {
         {{label}}
     </span>
 </li>
+`
+});
+
+// Dialog
+Vue.component('mdc-dialog', {
+    data: function () {
+        return {
+            dialog: null
+        }
+    },
+    props: ['value', 'open', 'title', 'escapeKeyAction', 'scrimClickAction'],
+    watch: {
+        value: function (val) {
+            if (val)
+                this.dialog.open();
+        },
+        open: function (val) {
+            if (val)
+                this.dialog.open();
+        },
+        escapeKeyAction: function (val) {
+            this.dialog.escapeKeyAction = val;
+        },
+        scrimClickAction: function (val) {
+            this.dialog.scrimClickAction = val;
+        }
+    },
+    mounted: function () {
+        var self = this;
+        this.dialog = new window.mdc.dialog.MDCDialog(this.$el);
+        this.dialog.escapeKeyAction = this.escapeKeyAction;
+        this.dialog.scrimClickAction = this.scrimClickAction;
+        this.dialog.listen('MDCDialog:closed', e => {
+            this.$emit('input', false);
+            this.$emit('closed', e.detail);
+        });
+        this.dialog.listen('MDCDialog:opened', e => {
+            const switchElems = document.querySelectorAll('#mdc-dialog_' + this._uid + ' .mdc-switch');
+            for (i = 0; i < switchElems.length; ++i) {
+                if (switchElems[i] != null) { mdc.switchControl.MDCSwitch.attachTo(switchElems[i]).layout; }
+            }
+        });
+        for (var i = 0; i < this.$slots.actions.length; i++) {
+            try {
+                if (this.$slots.actions[i].componentOptions.tag == 'mdc-button') {
+                    this.$slots.actions[i].componentInstance.inDialog = true;
+                }
+            }
+            catch { }
+        }
+    },
+    template: `
+<div class="mdc-dialog" :id="'mdc-dialog_' + _uid">
+    <div class="mdc-dialog__container">
+        <div class="mdc-dialog__surface" role="alertdialog" aria-modal="true" :aria-labelledby="'dialog' + _uid + '-title'"
+            aria-describedby="'dialog' + _uid + '-content'">
+            <slot name="header" />
+            <span class="mdc-typography--headline5 mdc-dialog__title" v-if="title != null" :id="'dialog' + _uid + '-title'">
+                {{title}}
+            </span>
+            <div class="mdc-dialog__content" :id="'dialog' + _uid + '-content'">
+                <slot></slot>
+            </div>
+            <div class="mdc-dialog__actions">
+                <slot name="actions"></slot>
+            </div>
+        </div>
+    </div>
+    <div class="mdc-dialog__scrim"></div>
+</div>
+`
+});
+
+// Card
+Vue.component('mdc-card', {
+    template: `
+<div class="mdc-card">
+    <slot></slot>
+</div>
+`
+});
+
+// Typography
+for (i = 1; i <= 6; i++) {
+    Vue.component(`mdc-h${i}`, {
+        template: `
+    <h${i} class="mdc-typography--headline${i}">
+        <slot></slot>
+    </h${i}>
+    `
+    });
+}
+
+for (i = 1; i <= 2; i++) {
+    Vue.component(`mdc-subtitle${i}`, {
+        template: `
+    <h6 class="mdc-typography--subtitle${i}">
+        <slot></slot>
+    </h6>
+    `
+    });
+    Vue.component('mdc-body${i}', {
+        template: `
+    <p class="mdc-typography--body${i}">
+        <slot></slot>
+    </p>
+    `
+    });
+}
+
+Vue.component('mdc-overline', {
+    template: `
+<span class="mdc-typography--overline">
+    <slot></slot>
+</span>
+`
+});
+
+Vue.component('mdc-caption', {
+    template: `
+<span class="mdc-typography--caption">
+    <slot></slot>
+</span>
 `
 });
