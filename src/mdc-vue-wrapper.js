@@ -1,5 +1,5 @@
 /*
- * mdc-vue-wrapper: v0.1.0
+ * mdc-vue-wrapper: v0.2.0
  * https://github.com/j7126/mdc-vue-wrapper
  * A basic wrapper to use material components with vuejs
  * Copyright (c) 2020 - 2021 Jefferey Neuffer (github.com/j7126)
