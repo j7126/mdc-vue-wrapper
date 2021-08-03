@@ -1,0 +1,22 @@
+{
+  "name": "mdc-vue-wrapper",
+  "version": "0.2.0",
+  "description": "A basic wrapper to use material components with vuejs",
+  "main": "./src/mdc-vue-wrapper.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/j7126/mdc-vue-wrapper.git"
+  },
+  "author": "Jefferey Neuffer (github.com/j7126)",
+  "license": "AGPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/j7126/mdc-vue-wrapper/issues"
+  },
+  "homepage": "https://github.com/j7126/mdc-vue-wrapper#readme",
+  "dependencies": {
+    "material-components-web": "^12.0.0"
+  }
+}
